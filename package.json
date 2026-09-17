@@ -1,0 +1,25 @@
+{
+	"name": "@rigelbuild/trunk-mq-mcp",
+	"version": "0.1.0",
+	"description": "Read-only Trunk merge queue introspection client and MCP server",
+	"type": "module",
+	"license": "MIT",
+	"scripts": {
+		"typecheck": "tsc --noEmit",
+		"test": "bun test",
+		"lint": "biome check .",
+		"format": "biome format --write ."
+	},
+	"engines": {
+		"bun": ">=1.4.0"
+	},
+	"packageManager": "bun@1.4.0",
+	"dependencies": {
+		"zod": "4.6.5"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.14",
+		"@types/bun": "1.4.2",
+		"typescript": "7.0.2"
+	}
+}

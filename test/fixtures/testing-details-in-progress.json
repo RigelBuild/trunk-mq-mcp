@@ -1,0 +1,467 @@
+{
+	"requiredStatuses": ["CI (pr)"],
+	"requiredStatusesSource": "merge_instance",
+	"testBranch": "trunk-merge/pr-2670/cc58fdda-3258-4f4e-b229-7c5dd9c29324",
+	"testBranchSha": "0a162560ed8a26135575ba9d90b16453ec2441b3",
+	"createdAt": "2026-09-17T10:15:59.000Z",
+	"status": "in_progress",
+	"checkSuites": [
+		{ "checkRuns": [] },
+		{ "checkRuns": [] },
+		{ "checkRuns": [] },
+		{ "checkRuns": [] },
+		{ "checkRuns": [] },
+		{ "checkRuns": [] },
+		{ "checkRuns": [] }
+	],
+	"statusChecks": [
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "SUCCESS"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "SUCCESS"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "SUCCESS"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "SUCCESS"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "SUCCESS"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "SUCCESS"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "SUCCESS"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "SUCCESS"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "SUCCESS"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "SUCCESS"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "SUCCESS"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (meta)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		},
+		{
+			"context": "CI (pr)",
+			"url": "https://ci.sealedsecurity.com/repos/2/pipeline/26026",
+			"state": "PENDING"
+		}
+	],
+	"testedPullRequests": [
+		{
+			"prNumber": 2670,
+			"prUrl": "https://github.com/RigelBuild/orion/pull/2670",
+			"title": "feat(platform): name the account email in not-reporting alert summaries (RIG-3840)"
+		}
+	],
+	"dependentPrs": []
+}

@@ -1,0 +1,24 @@
+{
+	"id": "e729c891-0979-4307-a686-96903f47e25e",
+	"state": "testing",
+	"stateChangedAt": "2026-09-17T10:16:02.000Z",
+	"priorityValue": 100,
+	"priorityName": "medium",
+	"usedDefaultPriorityName": "medium",
+	"skipTheLine": false,
+	"noBatch": false,
+	"prTitle": "feat(platform): name the account email in not-reporting alert summaries (RIG-3840)",
+	"prNumber": 2670,
+	"prSha": "6b91931aedddd30582f9a457ddf459c5d3a97d1d",
+	"prBaseBranch": "model-evals/rig-2939-retire-logan",
+	"prAuthor": "rigel-mintaka",
+	"readiness": {
+		"hasImpactedTargets": false,
+		"requiresImpactedTargets": false,
+		"doesBaseBranchMatch": true,
+		"gitHubMergeability": "mergeable"
+	},
+	"forceEnqueued": false,
+	"isCurrentlySubmittedToQueue": true,
+	"verifiedByTestRun": null
+}
