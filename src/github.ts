@@ -17,7 +17,8 @@ function parseItem(value: unknown): GitHubTrialPullRequest | undefined {
 	const head = isRecord(value.head) ? value.head : undefined;
 	const ref = head && typeof head.ref === "string" ? head.ref : undefined;
 	if (ref === undefined) return undefined;
-	const createdAt = typeof value.created_at === "string" ? value.created_at : undefined;
+	const createdAt =
+		typeof value.created_at === "string" ? value.created_at : undefined;
 	return { number: value.number, headRefName: ref, createdAt };
 }
 
@@ -53,7 +54,8 @@ export class GitHubClient {
 				...(this.#token ? { authorization: `Bearer ${this.#token}` } : {}),
 			},
 		});
-		if (!response.ok) throw new GitHubHttpError(response.status, await response.text());
+		if (!response.ok)
+			throw new GitHubHttpError(response.status, await response.text());
 		const payload: unknown = await response.json();
 		if (!isRecord(payload)) return [];
 		const items = (payload as SearchResponse).items;

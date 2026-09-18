@@ -1,5 +1,5 @@
-import type { GitHubClient, GitHubRepo } from "./github.ts";
 import type { TrunkClient } from "./client.ts";
+import type { GitHubClient, GitHubRepo } from "./github.ts";
 import type { TestingDetails } from "./types.ts";
 
 const TRIAL_BRANCH = /^trunk-merge\/pr-(\d+)\/([0-9a-f-]{36})(-bisection.*)?$/;
@@ -29,7 +29,9 @@ export type ParsedTrialBranch = {
 	isBisection: boolean;
 };
 
-export function parseTrialBranch(branch: string): ParsedTrialBranch | undefined {
+export function parseTrialBranch(
+	branch: string,
+): ParsedTrialBranch | undefined {
 	const match = TRIAL_BRANCH.exec(branch);
 	if (!match) return undefined;
 	const prNumber = Number(match[1]);
@@ -70,7 +72,9 @@ function trialRunFromDetails(
 	parsed: ParsedTrialBranch,
 	prNumber: number,
 ): TrialRun {
-	const testedPullRequests = details.testedPullRequests.map((pr) => pr.prNumber);
+	const testedPullRequests = details.testedPullRequests.map(
+		(pr) => pr.prNumber,
+	);
 	const dependentPrs = details.dependentPrs.flatMap((value) => {
 		if (typeof value === "number") return [value];
 		if (typeof value === "object" && value !== null && "prNumber" in value) {
@@ -99,14 +103,22 @@ export function foldVerdict(
 ): Verdict {
 	if (!createPrsForTestingBranches) return "unknown";
 	if (state === "merged") return "merged";
-	if (runs.length === 0) return state === "failed" || state === "pending_failure" ? "undiscovered" : "unknown";
+	if (runs.length === 0)
+		return state === "failed" || state === "pending_failure"
+			? "undiscovered"
+			: "unknown";
 	const newest = runs[0];
 	if (newest === undefined) return "unknown";
 	if (newest.status === "failed" || newest.status === "pending_failure") {
 		return newest.containsThisPr ? "terminal" : "ejected";
 	}
-	const containing = runs.find((run) => run.testedPullRequests.includes(prNumber));
-	if (containing && (containing.status === "failed" || containing.status === "pending_failure")) {
+	const containing = runs.find((run) =>
+		run.testedPullRequests.includes(prNumber),
+	);
+	if (
+		containing &&
+		(containing.status === "failed" || containing.status === "pending_failure")
+	) {
 		return "terminal";
 	}
 	return "in-flight";
