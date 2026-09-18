@@ -5,8 +5,8 @@ import {
 	parseTrialBranch,
 	type TrialRun,
 } from "../src/archaeology.ts";
-import type { GitHubClient } from "../src/github.ts";
 import type { TrunkClient } from "../src/client.ts";
+import type { GitHubClient } from "../src/github.ts";
 import type { TestingDetails } from "../src/types.ts";
 
 const repo = { owner: "RigelBuild", repo: "orion", targetBranch: "main" };
