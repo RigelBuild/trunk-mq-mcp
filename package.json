@@ -8,7 +8,8 @@
 		"typecheck": "tsc --noEmit",
 		"test": "bun test",
 		"lint": "biome check .",
-		"format": "biome format --write ."
+		"format": "biome format --write .",
+		"server": "bun run bin/server.ts"
 	},
 	"engines": {
 		"bun": ">=1.4.0"
