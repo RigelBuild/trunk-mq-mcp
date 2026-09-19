@@ -101,11 +101,15 @@ export function buildServer(deps: ToolDependencies): McpServer {
 				let testRunId: string | undefined;
 				let source: "verifiedByTestRun" | "trial-pr-archaeology";
 				let runs: TrialRun[] = [];
+				let createPrsForTestingBranches = false;
 				if (submitted.verifiedByTestRun) {
 					testRunId = submitted.verifiedByTestRun;
 					source = "verifiedByTestRun";
 				} else {
 					source = "trial-pr-archaeology";
+					const queue = await deps.trunk.getQueue?.(repo);
+					createPrsForTestingBranches =
+						queue?.createPrsForTestingBranches ?? true;
 					runs = await discoverTrialRuns(
 						deps.github,
 						deps.trunk,
@@ -128,7 +132,12 @@ export function buildServer(deps: ToolDependencies): McpServer {
 					const verdict =
 						source === "verifiedByTestRun"
 							? "terminal"
-							: foldVerdict(runs, submitted.state, repo.prNumber, true);
+							: foldVerdict(
+									runs,
+									submitted.state,
+									repo.prNumber,
+									createPrsForTestingBranches,
+								);
 					const terminalVerdict: "terminal" | "ejected" =
 						verdict === "ejected" ? "ejected" : "terminal";
 					result.failure = {
@@ -139,6 +148,12 @@ export function buildServer(deps: ToolDependencies): McpServer {
 						rawCheckCount: reduced.rawCheckCount,
 						...(reduced.reductionSkipped ? { reductionSkipped: true } : {}),
 						trialBranch: run?.trialBranch ?? details.testBranch,
+					};
+				} else {
+					result.failure = {
+						testRunSource: source,
+						verdict: "undiscovered",
+						reason: "No verified or discoverable testing run was found",
 					};
 				}
 			}
@@ -154,11 +169,12 @@ export function buildServer(deps: ToolDependencies): McpServer {
 			repo,
 			repo.prNumber,
 		);
+		const queue = await deps.trunk.getQueue?.(repo);
 		const verdict = foldVerdict(
 			runs,
 			submitted?.state ?? "pending",
 			repo.prNumber,
-			true,
+			queue?.createPrsForTestingBranches ?? true,
 		);
 		return textResult({ runs: runs.map(runResult), verdict });
 	});
