@@ -1,8 +1,10 @@
 # Trunk Merge Queue MCP
 
-A read-only MCP server for inspecting Trunk merge queues: queue state, a
-submitted pull request's status and failure reason, and the batch a PR was
-tested in.
+A read-only MCP server for inspecting Trunk merge queues through three tools:
+
+- `get_queue` — current queue state for a repository and target branch.
+- `get_pr_status` — submitted pull request status, checks, and failure reason.
+- `get_batch` — the trial batch in which a submitted pull request was tested.
 
 **The source contains no Trunk write endpoints.** Read-only is a property of
 the code rather than of registration or of the credential, which Trunk cannot
@@ -10,8 +12,18 @@ scope down — so the service cannot enqueue, cancel, or modify queue work even
 though its token could. A test asserts their absence and that the client
 exposes exactly its three read methods.
 
-Currently implemented: the typed Trunk API client. The MCP tool surface and
-the HTTP entrypoint are not built yet.
+## HTTP entrypoint
+
+The server accepts MCP Streamable HTTP requests at `POST /mcp`. Launch it
+locally with:
+
+```sh
+TRUNK_MQ_TRUNK_TOKEN=... TRUNK_MQ_GITHUB_TOKEN=... bun run server
+```
+
+`TRUNK_MQ_TRUNK_TOKEN` and `TRUNK_MQ_GITHUB_TOKEN` are required. Set
+`TRUNK_MQ_HOST` to override the default host (`127.0.0.1`) and
+`TRUNK_MQ_PORT` to override the default port (`4005`).
 
 ## Development
 
