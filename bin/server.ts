@@ -75,39 +75,99 @@ export function readRequestBody(req: IncomingMessage): Promise<BodyResult> {
 
 export function createHttpHandler(deps: Parameters<typeof buildServer>[0]) {
 	return async (req: IncomingMessage, res: ServerResponse) => {
-		if (req.url !== "/mcp" || req.method !== "POST") {
-			res.statusCode = 404;
-			res.end("Not found");
-			return;
-		}
-		const body = await readRequestBody(req);
-		if (body.kind === "too-large") {
-			res.statusCode = 413;
-			res.end("Request body too large");
-			return;
-		}
-		if (body.kind === "timeout") {
-			res.statusCode = 408;
-			res.end("Request timeout");
-			return;
-		}
-		if (body.kind === "error") throw body.error;
-
-		let parsedBody: unknown;
 		try {
-			parsedBody = JSON.parse(body.value);
+			const port = numberEnv("TRUNK_MQ_PORT", 4005);
+			if (
+				!isAllowedHost(req.headers.host, port) ||
+				!isAllowedOrigin(req.headers.origin, port)
+			) {
+				res.statusCode = 403;
+				res.end("Forbidden");
+				return;
+			}
+			if (req.url !== "/mcp") {
+				res.statusCode = 404;
+				res.end("Not found");
+				return;
+			}
+			if (req.method !== "POST") {
+				res.statusCode = 405;
+				res.setHeader("Allow", "POST");
+				res.end("Method not allowed");
+				return;
+			}
+			const body = await readRequestBody(req);
+			if (body.kind === "too-large") {
+				res.statusCode = 413;
+				res.end("Request body too large");
+				return;
+			}
+			if (body.kind === "timeout") {
+				res.statusCode = 408;
+				res.end("Request timeout");
+				return;
+			}
+			if (body.kind === "error") throw body.error;
+
+			let parsedBody: unknown;
+			try {
+				parsedBody = JSON.parse(body.value);
+			} catch {
+				res.statusCode = 400;
+				res.end("Invalid JSON");
+				return;
+			}
+			const transport = new StreamableHTTPServerTransport({
+				sessionIdGenerator: undefined,
+			});
+			const server = buildServer(deps);
+			await server.connect(transport);
+			await transport.handleRequest(req, res, parsedBody);
 		} catch {
-			res.statusCode = 400;
-			res.end("Invalid JSON");
-			return;
+			if (res.headersSent) {
+				res.destroy();
+				return;
+			}
+			res.statusCode = 500;
+			res.end("Internal server error");
 		}
-		const transport = new StreamableHTTPServerTransport({
-			sessionIdGenerator: undefined,
-		});
-		const server = buildServer(deps);
-		await server.connect(transport);
-		await transport.handleRequest(req, res, parsedBody);
 	};
+}
+
+function isAllowedHost(
+	value: string | string[] | undefined,
+	port: number,
+): boolean {
+	if (value === undefined) return true;
+	if (Array.isArray(value)) return false;
+	try {
+		const url = new URL(`http://${value}`);
+		const hostname = url.hostname.replace(/^\[|\]$/g, "");
+		return (
+			LOOPBACK_HOSTS.has(hostname) &&
+			(url.port === "" || Number(url.port) === port)
+		);
+	} catch {
+		return false;
+	}
+}
+function isAllowedOrigin(
+	value: string | string[] | undefined,
+	port: number,
+): boolean {
+	if (value === undefined) return true;
+	if (Array.isArray(value)) return false;
+	try {
+		const url = new URL(value);
+		const hostname = url.hostname.replace(/^\[|\]$/g, "");
+		return (
+			url.protocol === "http:" &&
+			LOOPBACK_HOSTS.has(hostname) &&
+			(url.port === "" || Number(url.port) === port)
+		);
+	} catch {
+		return false;
+	}
 }
 
 export function startServer() {

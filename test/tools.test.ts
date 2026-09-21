@@ -99,6 +99,7 @@ test("get_pr_status uses archaeology when verifiedByTestRun is null", async () =
 						...submitted,
 						state: "failed",
 					}),
+					getQueue: async () => queue,
 					getMergeQueueTestingDetails: async () => detailsValue,
 				}),
 				fakeGithub(async () => [trial]),
@@ -110,7 +111,56 @@ test("get_pr_status uses archaeology when verifiedByTestRun is null", async () =
 	expect(got.failure).toMatchObject({
 		testRunSource: "trial-pr-archaeology",
 		testRunId: "123e4567-e89b-12d3-a456-426614174000",
+		verdict: "in-flight",
 	});
+});
+
+test("get_pr_status preserves verified test run terminal verdict", async () => {
+	const got = await result(
+		toolNamed(
+			tools(
+				fakeTrunk({
+					getSubmittedPullRequest: async () => ({
+						...submitted,
+						state: "failed",
+						verifiedByTestRun: "123e4567-e89b-12d3-a456-426614174000",
+					}),
+					getMergeQueueTestingDetails: async () =>
+						TestingDetails.parse(details),
+				}),
+				fakeGithub(async () => []),
+			),
+			"get_pr_status",
+		),
+		{ ...repo, prNumber: 912 },
+	);
+	expect(got.failure).toMatchObject({
+		testRunSource: "verifiedByTestRun",
+		verdict: "terminal",
+	});
+});
+
+test("get_batch respects queue testing-branch setting", async () => {
+	const got = await result(
+		toolNamed(
+			tools(
+				fakeTrunk({
+					getSubmittedPullRequest: async () =>
+						({ ...submitted, state: "testing" }) as SubmittedPr,
+					getQueue: async () => ({
+						...queue,
+						createPrsForTestingBranches: false,
+					}),
+					getMergeQueueTestingDetails: async () =>
+						TestingDetails.parse(details),
+				}),
+				fakeGithub(async () => [trial]),
+			),
+			"get_batch",
+		),
+		{ ...repo, prNumber: 912 },
+	);
+	expect(got.verdict).toBe("unknown");
 });
 
 test("get_batch returns runs and undiscovered verdict", async () => {
@@ -120,6 +170,7 @@ test("get_batch returns runs and undiscovered verdict", async () => {
 				fakeTrunk({
 					getSubmittedPullRequest: async () =>
 						({ ...submitted, state: "failed" }) as SubmittedPr,
+					getQueue: async () => queue,
 					getMergeQueueTestingDetails: async () =>
 						TestingDetails.parse(details),
 				}),
@@ -146,5 +197,5 @@ test("get_batch reports unknown when submission is absent and no runs", async ()
 		),
 		{ ...repo, prNumber: 912 },
 	);
-	expect(got.verdict).toBe("unknown");
+	expect(got.verdict).toBe("not_enqueued");
 });
