@@ -56,6 +56,7 @@ const queue: Queue = {
 function dependencies(): ToolDependencies {
 	const trunk = {
 		getQueue: async () => queue,
+		getSubmittedPullRequest: async () => null,
 	} as unknown as TrunkClient;
 	const github = {} as unknown as GitHubClient;
 	return { trunk, github };
@@ -169,6 +170,27 @@ test("serves the public MCP tool catalog and serialized queue result", async () 
 					stateChangedAt: "2026-09-17T10:16:02.000Z",
 				},
 			],
+		});
+
+		const status = await rpc(url, 4, "tools/call", {
+			name: "get_pr_status",
+			arguments: { repo: "orion", prNumber: 2670 },
+		});
+		const statusText = status.result?.content?.[0]?.text;
+		expect(statusText).toBeString();
+		expect(JSON.parse(statusText ?? "null")).toEqual({
+			state: "not_enqueued",
+		});
+
+		const batch = await rpc(url, 5, "tools/call", {
+			name: "get_batch",
+			arguments: { repo: "orion", prNumber: 2670 },
+		});
+		const batchText = batch.result?.content?.[0]?.text;
+		expect(batchText).toBeString();
+		expect(JSON.parse(batchText ?? "null")).toEqual({
+			verdict: "not_enqueued",
+			runs: [],
 		});
 	} finally {
 		delete process.env.TRUNK_MQ_PORT;
