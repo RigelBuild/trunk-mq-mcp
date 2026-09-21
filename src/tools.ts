@@ -33,11 +33,30 @@ function queueResult(queue: Awaited<ReturnType<TrunkClient["getQueue"]>>) {
 	return {
 		queueState: queue.state.toUpperCase(),
 		config: {
-			mode: queue.mode,
-			batch: queue.batch,
+			branch: queue.branch,
 			concurrency: queue.concurrency,
-			mergeMethod: queue.mergeMethod,
+			testingTimeoutMinutes: queue.testingTimeoutMinutes,
+			mode: queue.mode,
+			canOptimisticallyMerge: queue.canOptimisticallyMerge,
+			pendingFailureDepth: queue.pendingFailureDepth,
+			batch: queue.batch,
+			batchingMaxWaitTimeMinutes: queue.batchingMaxWaitTimeMinutes,
+			batchingMinSize: queue.batchingMinSize,
+			createPrsForTestingBranches: queue.createPrsForTestingBranches,
+			commentsEnabled: queue.commentsEnabled,
+			commandsEnabled: queue.commandsEnabled,
+			statusCheckEnabled: queue.statusCheckEnabled,
+			extensionEnabled: queue.extensionEnabled,
+			bisectionConcurrency: queue.bisectionConcurrency,
 			requiredStatuses: queue.requiredStatuses,
+			directMergeMode: queue.directMergeMode,
+			optimizationMode: queue.optimizationMode,
+			mergeMethod: queue.mergeMethod,
+			testBranchConstructionMode: queue.testBranchConstructionMode,
+			enqueueingLabel: queue.enqueueingLabel,
+			labelCommandsEnabled: queue.labelCommandsEnabled,
+			stateLabelsEnabled: queue.stateLabelsEnabled,
+			notReadyTimeoutHours: queue.notReadyTimeoutHours,
 		},
 		entries: queue.enqueuedPullRequests.map((entry, index) => ({
 			position: index + 1,
@@ -76,6 +95,7 @@ export function buildServer(deps: ToolDependencies): McpServer {
 		{ inputSchema: prParams },
 		async (args) => {
 			const repo = args as PrArgs;
+			const { prNumber, ...repoRef } = repo;
 			const submitted = await deps.trunk.getSubmittedPullRequest(repo);
 			if (submitted === null) return textResult({ state: "not_enqueued" });
 			const result: {
@@ -107,14 +127,13 @@ export function buildServer(deps: ToolDependencies): McpServer {
 					source = "verifiedByTestRun";
 				} else {
 					source = "trial-pr-archaeology";
-					const queue = await deps.trunk.getQueue?.(repo);
-					createPrsForTestingBranches =
-						queue?.createPrsForTestingBranches ?? true;
+					const queue = await deps.trunk.getQueue(repoRef);
+					createPrsForTestingBranches = queue.createPrsForTestingBranches;
 					runs = await discoverTrialRuns(
 						deps.github,
 						deps.trunk,
-						repo,
-						repo.prNumber,
+						repoRef,
+						prNumber,
 					);
 					testRunId =
 						runs.find((run) => run.containsThisPr)?.testRunId ??
@@ -122,7 +141,7 @@ export function buildServer(deps: ToolDependencies): McpServer {
 				}
 				if (testRunId) {
 					const details = await deps.trunk.getMergeQueueTestingDetails({
-						...repo,
+						...repoRef,
 						testRunId,
 					});
 					const reduced = reduceChecks(details);
@@ -135,18 +154,21 @@ export function buildServer(deps: ToolDependencies): McpServer {
 							: foldVerdict(
 									runs,
 									submitted.state,
-									repo.prNumber,
+									prNumber,
 									createPrsForTestingBranches,
 								);
-					const terminalVerdict: "terminal" | "ejected" =
-						verdict === "ejected" ? "ejected" : "terminal";
 					result.failure = {
 						testRunId,
 						testRunSource: source,
-						verdict: terminalVerdict,
+						verdict,
 						failingChecks: reduced.failing,
 						rawCheckCount: reduced.rawCheckCount,
 						...(reduced.reductionSkipped ? { reductionSkipped: true } : {}),
+						...(submitted.state === "pending_failure" &&
+						reduced.failing.length === 0 &&
+						!reduced.reductionSkipped
+							? { inconclusive: true }
+							: {}),
 						trialBranch: run?.trialBranch ?? details.testBranch,
 					};
 				} else {
@@ -162,19 +184,22 @@ export function buildServer(deps: ToolDependencies): McpServer {
 	);
 	server.registerTool("get_batch", { inputSchema: prParams }, async (args) => {
 		const repo = args as PrArgs;
+		const { prNumber, ...repoRef } = repo;
 		const submitted = await deps.trunk.getSubmittedPullRequest(repo);
+		if (submitted === null)
+			return textResult({ verdict: "not_enqueued", runs: [] });
 		const runs = await discoverTrialRuns(
 			deps.github,
 			deps.trunk,
-			repo,
-			repo.prNumber,
+			repoRef,
+			prNumber,
 		);
-		const queue = await deps.trunk.getQueue?.(repo);
+		const queue = await deps.trunk.getQueue(repoRef);
 		const verdict = foldVerdict(
 			runs,
-			submitted?.state ?? "pending",
-			repo.prNumber,
-			queue?.createPrsForTestingBranches ?? true,
+			submitted.state,
+			prNumber,
+			queue.createPrsForTestingBranches,
 		);
 		return textResult({ runs: runs.map(runResult), verdict });
 	});
