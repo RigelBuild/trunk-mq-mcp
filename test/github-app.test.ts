@@ -171,6 +171,32 @@ test("rejects malformed successful installation response", async () => {
 
 	await expect(source.getToken()).rejects.toBeInstanceOf(GitHubHttpError);
 });
+test("retries token mint after failure and caches the recovered token", async () => {
+	let fetchCount = 0;
+	const now = Date.UTC(2026, 0, 2, 3, 4, 5);
+	const source = new GitHubAppTokenSource({
+		appId: "app-123",
+		installationId: "install-456",
+		privateKeyPem: privateKey,
+		now: () => now,
+		fetch: mockFetch(async () => {
+			fetchCount += 1;
+			if (fetchCount === 1) return new Response("unavailable", { status: 500 });
+			return tokenResponse(
+				"recovered-token",
+				new Date(now + 60 * 60_000).toISOString(),
+			);
+		}),
+	});
+
+	await expect(source.getToken()).rejects.toMatchObject({ status: 500 });
+	expect(fetchCount).toBe(1);
+	expect(await source.getToken()).toBe("recovered-token");
+	expect(fetchCount).toBe(2);
+	expect(await source.getToken()).toBe("recovered-token");
+	expect(fetchCount).toBe(2);
+});
+
 test("GitHub client resolves token source before search request", async () => {
 	globalThis.fetch = mockFetch(async (_url, init) => {
 		expect(new Headers(init?.headers).get("authorization")).toBe(
@@ -215,4 +241,27 @@ test("GitHub auth config requires exactly one complete mode", () => {
 		installationId: "installation-id",
 		privateKeyFile: "/secrets/app.pem",
 	});
+	expect(
+		githubAuthConfigFromEnv({ ...app, TRUNK_MQ_GITHUB_TOKEN: "" }),
+	).toEqual({
+		mode: "app",
+		appId: "app-id",
+		installationId: "installation-id",
+		privateKeyFile: "/secrets/app.pem",
+	});
+	expect(
+		githubAuthConfigFromEnv({
+			TRUNK_MQ_GITHUB_TOKEN: "token",
+			TRUNK_MQ_GITHUB_APP_ID: "",
+			TRUNK_MQ_GITHUB_INSTALLATION_ID: "",
+			TRUNK_MQ_GITHUB_APP_KEY_FILE: "",
+		}),
+	).toEqual({ mode: "token", token: "token" });
+	expect(() =>
+		githubAuthConfigFromEnv({
+			TRUNK_MQ_GITHUB_APP_ID: "app-id",
+			TRUNK_MQ_GITHUB_INSTALLATION_ID: "installation-id",
+			TRUNK_MQ_GITHUB_APP_KEY_FILE: "",
+		}),
+	).toThrow(/All GitHub App variables/);
 });

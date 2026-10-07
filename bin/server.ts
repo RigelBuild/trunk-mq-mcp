@@ -33,10 +33,14 @@ export function githubAuthConfigFromEnv(
 		"TRUNK_MQ_GITHUB_INSTALLATION_ID",
 		"TRUNK_MQ_GITHUB_APP_KEY_FILE",
 	] as const;
-	const hasToken = env[tokenName] !== undefined;
+	const hasToken = env[tokenName] !== undefined && env[tokenName] !== "";
 	const appValues = appNames.map((name) => env[name]);
-	const hasAnyAppValue = appValues.some((value) => value !== undefined);
-	const hasFullAppConfig = appValues.every((value) => value !== undefined);
+	const hasAnyAppValue = appValues.some(
+		(value) => value !== undefined && value !== "",
+	);
+	const hasFullAppConfig = appValues.every(
+		(value) => value !== undefined && value !== "",
+	);
 
 	if (hasToken && hasAnyAppValue)
 		throw new Error(
