@@ -1,14 +1,63 @@
+import { readFileSync } from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { createServer } from "node:http";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { TrunkClient } from "../src/client.ts";
 import { GitHubClient } from "../src/github.ts";
+import { GitHubAppTokenSource } from "../src/github-app.ts";
 import { buildServer } from "../src/tools.ts";
 
-function requiredEnv(name: string): string {
-	const value = process.env[name];
+type Environment = Readonly<Record<string, string | undefined>>;
+
+function requiredEnv(name: string, env: Environment = process.env): string {
+	const value = env[name];
 	if (!value) throw new Error(`${name} is required`);
 	return value;
+}
+
+type GitHubTokenAuth = { mode: "token"; token: string };
+type GitHubAppAuth = {
+	mode: "app";
+	appId: string;
+	installationId: string;
+	privateKeyFile: string;
+};
+export type GitHubAuthConfig = GitHubTokenAuth | GitHubAppAuth;
+
+export function githubAuthConfigFromEnv(
+	env: Environment = process.env,
+): GitHubAuthConfig {
+	const tokenName = "TRUNK_MQ_GITHUB_TOKEN";
+	const appNames = [
+		"TRUNK_MQ_GITHUB_APP_ID",
+		"TRUNK_MQ_GITHUB_INSTALLATION_ID",
+		"TRUNK_MQ_GITHUB_APP_KEY_FILE",
+	] as const;
+	const hasToken = env[tokenName] !== undefined;
+	const appValues = appNames.map((name) => env[name]);
+	const hasAnyAppValue = appValues.some((value) => value !== undefined);
+	const hasFullAppConfig = appValues.every((value) => value !== undefined);
+
+	if (hasToken && hasAnyAppValue)
+		throw new Error(
+			`Configure either ${tokenName} or all GitHub App variables, not both`,
+		);
+	if (hasAnyAppValue && !hasFullAppConfig)
+		throw new Error(
+			`All GitHub App variables are required: ${appNames.join(", ")}`,
+		);
+	if (!hasToken && !hasAnyAppValue)
+		throw new Error(
+			`Configure ${tokenName} or all GitHub App variables: ${appNames.join(", ")}`,
+		);
+
+	if (hasToken) return { mode: "token", token: requiredEnv(tokenName, env) };
+	return {
+		mode: "app",
+		appId: requiredEnv(appNames[0], env),
+		installationId: requiredEnv(appNames[1], env),
+		privateKeyFile: requiredEnv(appNames[2], env),
+	};
 }
 
 function numberEnv(name: string, fallback: number): number {
@@ -171,10 +220,20 @@ function isAllowedOrigin(
 }
 
 export function startServer() {
+	const githubAuth = githubAuthConfigFromEnv();
 	const trunk = new TrunkClient({ token: requiredEnv("TRUNK_MQ_TRUNK_TOKEN") });
-	const github = new GitHubClient({
-		token: requiredEnv("TRUNK_MQ_GITHUB_TOKEN"),
-	});
+	let githubToken: string | (() => Promise<string>);
+	if (githubAuth.mode === "token") {
+		githubToken = githubAuth.token;
+	} else {
+		const tokenSource = new GitHubAppTokenSource({
+			appId: githubAuth.appId,
+			installationId: githubAuth.installationId,
+			privateKeyPem: readFileSync(githubAuth.privateKeyFile, "utf8"),
+		});
+		githubToken = tokenSource.getToken.bind(tokenSource);
+	}
+	const github = new GitHubClient({ token: githubToken });
 	const host = configuredHost();
 	const port = numberEnv("TRUNK_MQ_PORT", 4005);
 	const server = createServer(createHttpHandler({ trunk, github }));

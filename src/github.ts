@@ -34,11 +34,17 @@ export class GitHubHttpError extends Error {
 }
 
 export class GitHubClient {
-	readonly #token: string;
+	readonly #token: string | (() => Promise<string>);
 	readonly #baseUrl: string;
-	constructor(opts: { token?: string; baseUrl?: string }) {
+	readonly #fetch: typeof fetch;
+	constructor(opts: {
+		token?: string | (() => Promise<string>);
+		baseUrl?: string;
+		fetch?: typeof fetch;
+	}) {
 		this.#token = opts.token ?? process.env.TRUNK_MQ_GITHUB_TOKEN ?? "";
 		this.#baseUrl = opts.baseUrl ?? "https://api.github.com";
+		this.#fetch = opts.fetch ?? fetch;
 	}
 
 	async searchTrialPullRequests(
@@ -47,11 +53,13 @@ export class GitHubClient {
 	): Promise<GitHubTrialPullRequest[]> {
 		const query = `repo:${repo.owner}/${repo.repo} is:pr state:closed head:trunk-merge/pr-${prNumber}`;
 		const url = `${this.#baseUrl}/search/issues?q=${encodeURIComponent(query)}&per_page=100`;
-		const response = await fetch(url, {
+		const token =
+			typeof this.#token === "string" ? this.#token : await this.#token();
+		const response = await this.#fetch(url, {
 			method: "GET",
 			headers: {
 				accept: "application/vnd.github+json",
-				...(this.#token ? { authorization: `Bearer ${this.#token}` } : {}),
+				...(token ? { authorization: `Bearer ${token}` } : {}),
 			},
 		});
 		if (!response.ok)
@@ -65,8 +73,4 @@ export class GitHubClient {
 			return parsed ? [parsed] : [];
 		});
 	}
-}
-
-export function githubClientFromEnv(): GitHubClient {
-	return new GitHubClient({ token: process.env.TRUNK_MQ_GITHUB_TOKEN });
 }
