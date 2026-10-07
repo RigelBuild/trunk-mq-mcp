@@ -15,6 +15,7 @@ function base64Url(value: string): string {
 export class GitHubAppTokenSource {
 	readonly #appId: string;
 	readonly #installationId: string;
+	readonly #repositories: string[];
 	readonly #privateKey: KeyObject;
 	readonly #baseUrl: string;
 	readonly #fetch: typeof fetch;
@@ -26,13 +27,17 @@ export class GitHubAppTokenSource {
 	constructor(opts: {
 		appId: string;
 		installationId: string;
+		repositories: string[];
 		privateKeyPem: string;
 		baseUrl?: string;
 		fetch?: typeof fetch;
 		now?: () => number;
 	}) {
+		if (opts.repositories.length === 0)
+			throw new Error("At least one GitHub repository is required");
 		this.#appId = opts.appId;
 		this.#installationId = opts.installationId;
+		this.#repositories = [...opts.repositories];
 		this.#privateKey = createPrivateKey(opts.privateKeyPem);
 		this.#baseUrl = (opts.baseUrl ?? "https://api.github.com").replace(
 			/\/$/,
@@ -82,7 +87,10 @@ export class GitHubAppTokenSource {
 					authorization: `Bearer ${jwt}`,
 					"content-type": "application/json",
 				},
-				body: JSON.stringify({ permissions: { pull_requests: "read" } }),
+				body: JSON.stringify({
+					repositories: this.#repositories,
+					permissions: { pull_requests: "read" },
+				}),
 			},
 		);
 		const body = await response.text();

@@ -22,9 +22,10 @@ TRUNK_MQ_TRUNK_TOKEN=... TRUNK_MQ_GITHUB_TOKEN=... bun run server
 ```
 
 `TRUNK_MQ_GITHUB_TOKEN` is a static token. For GitHub App auth, set
-`TRUNK_MQ_GITHUB_APP_ID`, `TRUNK_MQ_GITHUB_INSTALLATION_ID`, and
-`TRUNK_MQ_GITHUB_APP_KEY_FILE` (path to the PEM private key) instead. Set
-`TRUNK_MQ_HOST` or `TRUNK_MQ_PORT` to change the defaults (`127.0.0.1:4005`).
+`TRUNK_MQ_GITHUB_APP_ID`, `TRUNK_MQ_GITHUB_INSTALLATION_ID`,
+`TRUNK_MQ_GITHUB_APP_KEY_FILE` (path to the PEM private key), and
+`TRUNK_MQ_GITHUB_APP_REPOSITORIES` (comma-separated repository names) instead.
+Set `TRUNK_MQ_HOST` or `TRUNK_MQ_PORT` to change the defaults (`127.0.0.1:4005`).
 
 ## Development
 

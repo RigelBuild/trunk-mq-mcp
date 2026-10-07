@@ -39,6 +39,7 @@ test("mints narrowed installation token with verifiable RS256 JWT", async () => 
 	const source = new GitHubAppTokenSource({
 		appId: "app-123",
 		installationId: "install-456",
+		repositories: ["orion", "compass"],
 		privateKeyPem: privateKey,
 		baseUrl: "https://api.example.test/",
 		now: () => now,
@@ -60,6 +61,7 @@ test("mints narrowed installation token with verifiable RS256 JWT", async () => 
 		"application/vnd.github+json",
 	);
 	expect(JSON.parse(String(request?.init?.body))).toEqual({
+		repositories: ["orion", "compass"],
 		permissions: { pull_requests: "read" },
 	});
 
@@ -94,6 +96,7 @@ test("caches until five minutes before expiry, then refreshes", async () => {
 	const source = new GitHubAppTokenSource({
 		appId: "app-123",
 		installationId: "install-456",
+		repositories: ["orion"],
 		privateKeyPem: privateKey,
 		now: () => now,
 		fetch: mockFetch(async () => {
@@ -119,6 +122,7 @@ test("concurrent token callers share a mint", async () => {
 	const source = new GitHubAppTokenSource({
 		appId: "app-123",
 		installationId: "install-456",
+		repositories: ["orion"],
 		privateKeyPem: privateKey,
 		now: () => Date.UTC(2026, 0, 2),
 		fetch: mockFetch(async () => {
@@ -148,6 +152,7 @@ test("non-201 installation responses throw GitHubHttpError", async () => {
 	const source = new GitHubAppTokenSource({
 		appId: "app-123",
 		installationId: "install-456",
+		repositories: ["orion"],
 		privateKeyPem: privateKey,
 		fetch: mockFetch(async () => new Response("denied", { status: 403 })),
 	});
@@ -162,6 +167,7 @@ test("rejects malformed successful installation response", async () => {
 	const source = new GitHubAppTokenSource({
 		appId: "app-123",
 		installationId: "install-456",
+		repositories: ["orion"],
 		privateKeyPem: privateKey,
 		fetch: mockFetch(
 			async () =>
@@ -171,12 +177,25 @@ test("rejects malformed successful installation response", async () => {
 
 	await expect(source.getToken()).rejects.toBeInstanceOf(GitHubHttpError);
 });
+
+test("rejects empty GitHub App repository list", () => {
+	expect(
+		() =>
+			new GitHubAppTokenSource({
+				appId: "app-123",
+				installationId: "install-456",
+				repositories: [],
+				privateKeyPem: privateKey,
+			}),
+	).toThrow(/At least one GitHub repository/);
+});
 test("retries token mint after failure and caches the recovered token", async () => {
 	let fetchCount = 0;
 	const now = Date.UTC(2026, 0, 2, 3, 4, 5);
 	const source = new GitHubAppTokenSource({
 		appId: "app-123",
 		installationId: "install-456",
+		repositories: ["orion"],
 		privateKeyPem: privateKey,
 		now: () => now,
 		fetch: mockFetch(async () => {
@@ -217,6 +236,7 @@ test("GitHub auth config requires exactly one complete mode", () => {
 		TRUNK_MQ_GITHUB_APP_ID: "app-id",
 		TRUNK_MQ_GITHUB_INSTALLATION_ID: "installation-id",
 		TRUNK_MQ_GITHUB_APP_KEY_FILE: "/secrets/app.pem",
+		TRUNK_MQ_GITHUB_APP_REPOSITORIES: " orion, compass ,",
 	};
 	expect(() => githubAuthConfigFromEnv({})).toThrow(/Configure/);
 	expect(() =>
@@ -226,6 +246,17 @@ test("GitHub auth config requires exactly one complete mode", () => {
 		{ TRUNK_MQ_GITHUB_APP_ID: "app-id" },
 		{ TRUNK_MQ_GITHUB_INSTALLATION_ID: "installation-id" },
 		{ TRUNK_MQ_GITHUB_APP_KEY_FILE: "/secrets/app.pem" },
+		{ TRUNK_MQ_GITHUB_APP_REPOSITORIES: "orion" },
+		{
+			TRUNK_MQ_GITHUB_APP_ID: "app-id",
+			TRUNK_MQ_GITHUB_INSTALLATION_ID: "installation-id",
+			TRUNK_MQ_GITHUB_APP_KEY_FILE: "/secrets/app.pem",
+		},
+		{
+			TRUNK_MQ_GITHUB_APP_ID: "app-id",
+			TRUNK_MQ_GITHUB_INSTALLATION_ID: "installation-id",
+			TRUNK_MQ_GITHUB_APP_KEY_FILE: "/secrets/app.pem",
+		},
 	]) {
 		expect(() => githubAuthConfigFromEnv(partial)).toThrow(
 			/All GitHub App variables/,
@@ -240,6 +271,7 @@ test("GitHub auth config requires exactly one complete mode", () => {
 		appId: "app-id",
 		installationId: "installation-id",
 		privateKeyFile: "/secrets/app.pem",
+		repositories: ["orion", "compass"],
 	});
 	expect(
 		githubAuthConfigFromEnv({ ...app, TRUNK_MQ_GITHUB_TOKEN: "" }),
@@ -248,6 +280,7 @@ test("GitHub auth config requires exactly one complete mode", () => {
 		appId: "app-id",
 		installationId: "installation-id",
 		privateKeyFile: "/secrets/app.pem",
+		repositories: ["orion", "compass"],
 	});
 	expect(
 		githubAuthConfigFromEnv({
@@ -255,13 +288,15 @@ test("GitHub auth config requires exactly one complete mode", () => {
 			TRUNK_MQ_GITHUB_APP_ID: "",
 			TRUNK_MQ_GITHUB_INSTALLATION_ID: "",
 			TRUNK_MQ_GITHUB_APP_KEY_FILE: "",
+			TRUNK_MQ_GITHUB_APP_REPOSITORIES: "",
 		}),
 	).toEqual({ mode: "token", token: "token" });
 	expect(() =>
 		githubAuthConfigFromEnv({
 			TRUNK_MQ_GITHUB_APP_ID: "app-id",
 			TRUNK_MQ_GITHUB_INSTALLATION_ID: "installation-id",
-			TRUNK_MQ_GITHUB_APP_KEY_FILE: "",
+			TRUNK_MQ_GITHUB_APP_KEY_FILE: "/secrets/app.pem",
+			TRUNK_MQ_GITHUB_APP_REPOSITORIES: " , , ",
 		}),
-	).toThrow(/All GitHub App variables/);
+	).toThrow(/at least one repository/);
 });

@@ -21,6 +21,7 @@ type GitHubAppAuth = {
 	appId: string;
 	installationId: string;
 	privateKeyFile: string;
+	repositories: string[];
 };
 export type GitHubAuthConfig = GitHubTokenAuth | GitHubAppAuth;
 
@@ -32,6 +33,7 @@ export function githubAuthConfigFromEnv(
 		"TRUNK_MQ_GITHUB_APP_ID",
 		"TRUNK_MQ_GITHUB_INSTALLATION_ID",
 		"TRUNK_MQ_GITHUB_APP_KEY_FILE",
+		"TRUNK_MQ_GITHUB_APP_REPOSITORIES",
 	] as const;
 	const hasToken = env[tokenName] !== undefined && env[tokenName] !== "";
 	const appValues = appNames.map((name) => env[name]);
@@ -56,11 +58,18 @@ export function githubAuthConfigFromEnv(
 		);
 
 	if (hasToken) return { mode: "token", token: requiredEnv(tokenName, env) };
+	const repositories = requiredEnv(appNames[3], env)
+		.split(",")
+		.map((repository) => repository.trim())
+		.filter((repository) => repository.length > 0);
+	if (repositories.length === 0)
+		throw new Error(`${appNames[3]} must contain at least one repository`);
 	return {
 		mode: "app",
 		appId: requiredEnv(appNames[0], env),
 		installationId: requiredEnv(appNames[1], env),
 		privateKeyFile: requiredEnv(appNames[2], env),
+		repositories,
 	};
 }
 
@@ -233,6 +242,7 @@ export function startServer() {
 		const tokenSource = new GitHubAppTokenSource({
 			appId: githubAuth.appId,
 			installationId: githubAuth.installationId,
+			repositories: githubAuth.repositories,
 			privateKeyPem: readFileSync(githubAuth.privateKeyFile, "utf8"),
 		});
 		githubToken = tokenSource.getToken.bind(tokenSource);
