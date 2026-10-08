@@ -14,16 +14,18 @@ exposes exactly its three read methods.
 
 ## HTTP entrypoint
 
-The server accepts MCP Streamable HTTP requests at `POST /mcp`. Launch it
-locally with:
+The server accepts MCP Streamable HTTP requests at `POST /mcp`. Set
+`TRUNK_MQ_TRUNK_TOKEN` and choose exactly one GitHub auth mode:
 
 ```sh
 TRUNK_MQ_TRUNK_TOKEN=... TRUNK_MQ_GITHUB_TOKEN=... bun run server
 ```
 
-`TRUNK_MQ_TRUNK_TOKEN` and `TRUNK_MQ_GITHUB_TOKEN` are required. Set
-`TRUNK_MQ_HOST` to override the default host (`127.0.0.1`) and
-`TRUNK_MQ_PORT` to override the default port (`4005`).
+`TRUNK_MQ_GITHUB_TOKEN` is a static token. For GitHub App auth, set
+`TRUNK_MQ_GITHUB_APP_ID`, `TRUNK_MQ_GITHUB_INSTALLATION_ID`,
+`TRUNK_MQ_GITHUB_APP_KEY_FILE` (path to the PEM private key), and
+`TRUNK_MQ_GITHUB_APP_REPOSITORIES` (comma-separated repository names) instead.
+Set `TRUNK_MQ_HOST` or `TRUNK_MQ_PORT` to change the defaults (`127.0.0.1:4005`).
 
 ## Development
 
