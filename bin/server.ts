@@ -86,11 +86,38 @@ export const MAX_BODY_BYTES = 1024 * 1024;
 export const REQUEST_TIMEOUT_MS = 10_000;
 const LOOPBACK_HOSTS = new Set(["127.0.0.1", "localhost", "::1"]);
 
+// Hostnames a client may name in Host/Origin besides loopback, e.g. an in-cluster Service name.
+export function allowedHosts(): Set<string> {
+	const raw = process.env.TRUNK_MQ_ALLOWED_HOSTS ?? "";
+	const hosts = new Set<string>();
+	for (const entry of raw.split(",")) {
+		const host = entry.trim().toLowerCase();
+		if (host === "") continue;
+		let parsed: URL | undefined;
+		try {
+			parsed = new URL(`http://${host}`);
+		} catch {}
+		if (parsed?.hostname !== host || parsed.port !== "" || host.startsWith("["))
+			throw new Error(
+				`TRUNK_MQ_ALLOWED_HOSTS entries must be bare hostnames: ${entry.trim()}`,
+			);
+		hosts.add(host);
+	}
+	return hosts;
+}
+
+function isTrustedHostname(hostname: string): boolean {
+	return LOOPBACK_HOSTS.has(hostname) || allowedHosts().has(hostname);
+}
+
 export function configuredHost(): string {
 	const host = process.env.TRUNK_MQ_HOST ?? "127.0.0.1";
-	if (!LOOPBACK_HOSTS.has(host))
+	// Parse unconditionally so a bad allowlist fails startup, not every request.
+	const allowed = allowedHosts();
+	// A non-loopback bind is reachable by other clients, so it needs an explicit Host allowlist.
+	if (!LOOPBACK_HOSTS.has(host) && allowed.size === 0)
 		throw new Error(
-			"TRUNK_MQ_HOST must be a loopback host (127.0.0.1, localhost, or ::1)",
+			"TRUNK_MQ_HOST must be a loopback host (127.0.0.1, localhost, or ::1) unless TRUNK_MQ_ALLOWED_HOSTS lists at least one hostname",
 		);
 	return host;
 }
@@ -206,7 +233,7 @@ function isAllowedHost(
 		const url = new URL(`http://${value}`);
 		const hostname = url.hostname.replace(/^\[|\]$/g, "");
 		return (
-			LOOPBACK_HOSTS.has(hostname) &&
+			isTrustedHostname(hostname) &&
 			(url.port === "" || Number(url.port) === port)
 		);
 	} catch {
@@ -224,7 +251,7 @@ function isAllowedOrigin(
 		const hostname = url.hostname.replace(/^\[|\]$/g, "");
 		return (
 			url.protocol === "http:" &&
-			LOOPBACK_HOSTS.has(hostname) &&
+			isTrustedHostname(hostname) &&
 			(url.port === "" || Number(url.port) === port)
 		);
 	} catch {
