@@ -83,6 +83,7 @@ async function request(
 afterEach(() => {
 	delete process.env.TRUNK_MQ_HOST;
 	delete process.env.TRUNK_MQ_PORT;
+	delete process.env.TRUNK_MQ_ALLOWED_HOSTS;
 });
 
 test("returns 400 for malformed JSON on the MCP endpoint", async () => {
@@ -146,4 +147,59 @@ test("rejects a non-loopback configured host", () => {
 	expect(() => configuredHost()).toThrow(
 		"TRUNK_MQ_HOST must be a loopback host",
 	);
+	process.env.TRUNK_MQ_ALLOWED_HOSTS = " , ";
+	expect(() => configuredHost()).toThrow("lists at least one hostname");
+});
+
+const SERVICE_HOST = "trunk-mq-mcp.llm-gateway.svc.cluster.local";
+
+test("binds a non-loopback host once trusted hosts are configured", () => {
+	process.env.TRUNK_MQ_HOST = "0.0.0.0";
+	process.env.TRUNK_MQ_ALLOWED_HOSTS = ` ${SERVICE_HOST} , trunk-mq-mcp `;
+	expect(configuredHost()).toBe("0.0.0.0");
+});
+
+test("rejects allowlist entries that are not bare hostnames", () => {
+	for (const entry of [
+		"svc:4008",
+		"http://svc",
+		"svc/mcp",
+		"a b",
+		"[fd00::1]",
+	]) {
+		process.env.TRUNK_MQ_ALLOWED_HOSTS = entry;
+		expect(() => configuredHost()).toThrow(
+			"TRUNK_MQ_ALLOWED_HOSTS entries must be bare hostnames",
+		);
+	}
+});
+
+test("accepts a configured Service Host and Origin", async () => {
+	process.env.TRUNK_MQ_ALLOWED_HOSTS = SERVICE_HOST.toUpperCase();
+	process.env.TRUNK_MQ_PORT = "4008";
+	const got = await request("/mcp", "POST", "{not-json", {
+		host: `${SERVICE_HOST}:4008`,
+		origin: `http://${SERVICE_HOST}:4008`,
+	});
+	expect(got.statusCode).toBe(400);
+	const defaultPort = await request("/mcp", "POST", "{not-json", {
+		host: SERVICE_HOST.toUpperCase(),
+	});
+	expect(defaultPort.statusCode).toBe(400);
+});
+
+test("still rejects unlisted hosts and wrong ports when trusted hosts are set", async () => {
+	process.env.TRUNK_MQ_ALLOWED_HOSTS = SERVICE_HOST;
+	process.env.TRUNK_MQ_PORT = "4008";
+	for (const headers of [
+		{ host: "evil.example:4008" },
+		{ host: `${SERVICE_HOST}:9999` },
+		{ host: `${SERVICE_HOST}.evil.example` },
+		{ host: `${SERVICE_HOST}.` },
+		{ origin: `https://${SERVICE_HOST}:4008` },
+		{ origin: "http://evil.example:4008" },
+	]) {
+		const got = await request("/mcp", "POST", "{}", headers);
+		expect(got.statusCode).toBe(403);
+	}
 });
