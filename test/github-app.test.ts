@@ -39,7 +39,7 @@ test("mints narrowed installation token with verifiable RS256 JWT", async () => 
 	const source = new GitHubAppTokenSource({
 		appId: "app-123",
 		installationId: "install-456",
-		repositories: ["orion", "compass"],
+		repositories: ["orion", "krypton"],
 		privateKeyPem: privateKey,
 		baseUrl: "https://api.example.test/",
 		now: () => now,
@@ -61,7 +61,7 @@ test("mints narrowed installation token with verifiable RS256 JWT", async () => 
 		"application/vnd.github+json",
 	);
 	expect(JSON.parse(String(request?.init?.body))).toEqual({
-		repositories: ["orion", "compass"],
+		repositories: ["orion", "krypton"],
 		permissions: { pull_requests: "read" },
 	});
 
@@ -236,7 +236,7 @@ test("GitHub auth config requires exactly one complete mode", () => {
 		TRUNK_MQ_GITHUB_APP_ID: "app-id",
 		TRUNK_MQ_GITHUB_INSTALLATION_ID: "installation-id",
 		TRUNK_MQ_GITHUB_APP_KEY_FILE: "/secrets/app.pem",
-		TRUNK_MQ_GITHUB_APP_REPOSITORIES: " orion, compass ,",
+		TRUNK_MQ_GITHUB_APP_REPOSITORIES: " orion, krypton ,",
 	};
 	expect(() => githubAuthConfigFromEnv({})).toThrow(/Configure/);
 	expect(() =>
@@ -271,7 +271,7 @@ test("GitHub auth config requires exactly one complete mode", () => {
 		appId: "app-id",
 		installationId: "installation-id",
 		privateKeyFile: "/secrets/app.pem",
-		repositories: ["orion", "compass"],
+		repositories: ["orion", "krypton"],
 	});
 	expect(
 		githubAuthConfigFromEnv({ ...app, TRUNK_MQ_GITHUB_TOKEN: "" }),
@@ -280,7 +280,7 @@ test("GitHub auth config requires exactly one complete mode", () => {
 		appId: "app-id",
 		installationId: "installation-id",
 		privateKeyFile: "/secrets/app.pem",
-		repositories: ["orion", "compass"],
+		repositories: ["orion", "krypton"],
 	});
 	expect(
 		githubAuthConfigFromEnv({
